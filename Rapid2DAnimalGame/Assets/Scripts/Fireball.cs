@@ -5,8 +5,10 @@ using UnityEngine;
 public class Fireball : MonoBehaviour
 {
     public float speed = 10f;
+    public float destroyDistance = 1f;
 
     private Rigidbody2D rb;
+    private Vector3 clickPosition;
 
     void Start()
     {
@@ -14,19 +16,28 @@ public class Fireball : MonoBehaviour
 
         rb.gravityScale = 0f;
 
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector3 direction = (mousePosition - transform.position).normalized;
+        clickPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 direction = (clickPosition - transform.position).normalized;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-    }
-
-    void Update()
-    {
-        Destroy(this.gameObject, 4f);
     }
 
     void FixedUpdate()
     {
         rb.velocity = transform.right * speed;
+
+        if (Vector2.Distance(transform.position, clickPosition) < destroyDistance)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.tag == "IceBlock")
+        {
+            collision.gameObject.SetActive(false);
+            Destroy(this.gameObject);
+        }
     }
 }

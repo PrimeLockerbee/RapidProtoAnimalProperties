@@ -9,18 +9,19 @@ public class PlayerController : MonoBehaviour
     public float maxSpeed = 3.4f;
     public float jumpHeight = 6.5f;
     public float gravityScale = 1.5f;
-    public Camera mainCamera;
+    //public Camera mainCamera;
 
     bool facingRight = true;
     float moveDirection = 0;
     bool isGrounded = false;
-    Vector3 cameraPos;
+
     Rigidbody2D r2d;
     CapsuleCollider2D mainCollider;
     Transform t;
 
     public GameObject fireballPrefab;
     public Transform fireballSpawn;
+    private float fireballTimer = 1f;
 
     void Start()
     {
@@ -32,14 +33,16 @@ public class PlayerController : MonoBehaviour
         r2d.gravityScale = gravityScale;
         facingRight = t.localScale.x > 0;
 
-        if (mainCamera)
-        {
-            cameraPos = mainCamera.transform.position;
-        }
+        //if (mainCamera)
+        //{
+        //    cameraPos = mainCamera.transform.position;
+        //}
     }
 
     void Update()
     {
+        fireballTimer += Time.deltaTime;
+
         if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)) && (isGrounded || Mathf.Abs(r2d.velocity.x) > 0.01f))
         {
             moveDirection = Input.GetKey(KeyCode.A) ? -1 : 1;
@@ -66,18 +69,19 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.W) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             r2d.velocity = new Vector2(r2d.velocity.x, jumpHeight);
         }
 
-        if (mainCamera)
-        {
-            mainCamera.transform.position = new Vector3(t.position.x, cameraPos.y, cameraPos.z);
-        }
+        //if (mainCamera)
+        //{
+        //    mainCamera.transform.position = new Vector3(t.position.x, cameraPos.y, cameraPos.z);
+        //}
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && fireballTimer >= 1f)
         {
+            fireballTimer = 0f;
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3 fireballDirection = (mousePosition - transform.position).normalized;
             GameObject fireball = Instantiate(fireballPrefab, fireballSpawn.position, Quaternion.identity);
